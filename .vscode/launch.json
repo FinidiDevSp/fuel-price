@@ -1,0 +1,79 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Depurar la aplicación NestJS con hot-reload
+      // Usa F5 para arrancar y depurar con breakpoints
+      "name": "NestJS: Debug (watch)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:debug"],
+      "console": "integratedTerminal",
+      "restart": true,
+      "envFile": "${workspaceFolder}/.env",
+      "skipFiles": ["<node_internals>/**"],
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "sourceMaps": true
+    },
+    {
+      // Arrancar sin watch (más rápido, sin hot-reload)
+      "name": "NestJS: Debug (sin watch)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start:dev"],
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/.env",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true
+    },
+    {
+      // Depurar tests unitarios con Jest
+      "name": "Jest: Debug tests",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "test", "--", "--runInBand"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true
+    },
+    {
+      // Depurar un solo archivo de test (el archivo abierto)
+      "name": "Jest: Debug archivo actual",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "test",
+        "--",
+        "--runInBand",
+        "${relativeFile}"
+      ],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true
+    },
+    {
+      // Depurar tests e2e
+      "name": "Jest: Debug e2e",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "test:e2e", "--", "--runInBand"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true
+    }
+  ],
+  "compounds": [
+    {
+      // Arranca app + infra Docker al mismo tiempo
+      "name": "Full Stack: App + Docker",
+      "configurations": ["NestJS: Debug (watch)"],
+      "preLaunchTask": "docker:up"
+    }
+  ]
+}

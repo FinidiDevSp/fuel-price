@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    /* Lenguaje y entorno */
+    "module": "commonjs",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "moduleResolution": "node",
+
+    /* Emisión */
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "incremental": true,
+
+    /* Strictness - máxima seguridad de tipos */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    /* Resolución de módulos con alias */
+    "baseUrl": "./",
+    "paths": {
+      "@app/*": ["src/*"],
+      "@modules/*": ["src/modules/*"],
+      "@common/*": ["src/common/*"],
+      "@config/*": ["src/config/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "coverage"]
+}

@@ -1,0 +1,32 @@
+{
+  "recommendations": [
+    // TypeScript y JavaScript
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+
+    // NestJS
+    "ashinzekene.nestjs",
+
+    // Docker
+    "ms-azuretools.vscode-docker",
+
+    // Base de datos
+    "cweijan.vscode-postgresql-client2",
+
+    // REST API testing
+    "humao.rest-client",
+
+    // Git
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+
+    // Utilidades
+    "editorconfig.editorconfig",
+    "mikestead.dotenv",
+    "usernamehw.errorlens",
+    "gruntfuggly.todo-tree",
+
+    // Markdown
+    "yzhang.markdown-all-in-one"
+  ]
+}

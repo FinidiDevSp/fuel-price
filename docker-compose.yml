@@ -1,0 +1,44 @@
+services:
+  # ──────────────────────────────────────────────
+  # PostgreSQL - Base de datos principal
+  # ──────────────────────────────────────────────
+  postgres:
+    image: postgres:17-alpine
+    container_name: fuel-price-postgres
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-fuel_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-fuel_password}
+      POSTGRES_DB: ${DB_NAME:-fuel_price}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-fuel_user} -d ${DB_NAME:-fuel_price}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ──────────────────────────────────────────────
+  # Redis - Caché y colas
+  # ──────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: fuel-price-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

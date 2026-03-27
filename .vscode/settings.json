@@ -1,0 +1,41 @@
+{
+  // Formateador por defecto: Prettier
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+
+  // TypeScript
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.suggest.autoImports": true,
+
+  // ESLint
+  "eslint.validate": ["typescript"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // Archivos excluidos del explorador
+  "files.exclude": {
+    "dist": true,
+    "coverage": true,
+    "node_modules": true
+  },
+
+  // Asociaciones de archivos
+  "files.associations": {
+    "*.env.*": "dotenv",
+    "docker-compose.yml": "dockercompose"
+  },
+
+  // Búsqueda: excluir carpetas pesadas
+  "search.exclude": {
+    "dist": true,
+    "coverage": true,
+    "node_modules": true
+  },
+
+  // Terminal por defecto
+  "terminal.integrated.defaultProfile.windows": "Git Bash",
+
+  // End of line consistency
+  "files.eol": "\n"
+}

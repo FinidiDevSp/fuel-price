@@ -1,0 +1,62 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "docker:up",
+      "type": "shell",
+      "command": "docker compose up -d",
+      "problemMatcher": [],
+      "detail": "Levanta PostgreSQL y Redis con Docker Compose"
+    },
+    {
+      "label": "docker:down",
+      "type": "shell",
+      "command": "docker compose down",
+      "problemMatcher": [],
+      "detail": "Detiene los contenedores Docker"
+    },
+    {
+      "label": "docker:logs",
+      "type": "shell",
+      "command": "docker compose logs -f",
+      "problemMatcher": [],
+      "detail": "Muestra logs en tiempo real de los contenedores"
+    },
+    {
+      "label": "npm:install",
+      "type": "shell",
+      "command": "npm install",
+      "problemMatcher": [],
+      "detail": "Instala las dependencias del proyecto"
+    },
+    {
+      "label": "lint",
+      "type": "shell",
+      "command": "npm run lint",
+      "problemMatcher": ["$eslint-stylish"],
+      "detail": "Ejecuta ESLint con auto-fix"
+    },
+    {
+      "label": "test",
+      "type": "shell",
+      "command": "npm test",
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "detail": "Ejecuta tests unitarios con Jest"
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "npm run build",
+      "problemMatcher": ["$tsc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "Compila el proyecto TypeScript"
+    }
+  ]
+}
