@@ -3,6 +3,7 @@ node_modules/
 
 # Build
 dist/
+tsconfig.tsbuildinfo
 
 # Cobertura de tests
 coverage/
