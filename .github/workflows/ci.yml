@@ -28,7 +28,7 @@ jobs:
     steps:
       # ── Checkout del código ──
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # ── Setup de Node.js con caché de npm ──
       - name: Setup Node.js ${{ matrix.node-version }}
