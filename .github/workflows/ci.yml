@@ -1,0 +1,58 @@
+# ──────────────────────────────────────────────
+# CI Pipeline - Fuel Price
+# ──────────────────────────────────────────────
+# Se ejecuta en cada push a main.
+# Garantiza que el código compila, pasa lint,
+# verificación de tipos y tests antes de llegar.
+# ──────────────────────────────────────────────
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Lint, Typecheck & Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      # ── Checkout del código ──
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Setup de Node.js con caché de npm ──
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      # ── Instalar dependencias ──
+      - name: Instalar dependencias
+        run: npm ci
+
+      # ── Lint ──
+      - name: Ejecutar lint
+        run: npm run lint
+
+      # ── Verificación de tipos ──
+      - name: Verificar tipos (typecheck)
+        run: npm run typecheck
+
+      # ── Tests unitarios ──
+      - name: Ejecutar tests
+        run: npm test -- --passWithNoTests --coverage
+
+      # ── Build ──
+      - name: Compilar proyecto
+        run: npm run build
