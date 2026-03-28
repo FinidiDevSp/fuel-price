@@ -1,1 +1,7 @@
-export { PaginationQueryDto, StationQueryDto, NearbyQueryDto } from './query.dto';
+export {
+  PaginationQueryDto,
+  StationQueryDto,
+  NearbyQueryDto,
+  StationHistoryQueryDto,
+  SearchQueryDto,
+} from './query.dto';

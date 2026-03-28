@@ -9,6 +9,7 @@ import { Station } from './entities/station.entity';
 import { StationCurrentPrice } from './entities/station-current-price.entity';
 import { RegionType } from './interfaces/region-type.enum';
 import { StationQueryDto, NearbyQueryDto } from './dto/query.dto';
+import { StationPriceObservation } from '../ingestion/entities/station-price-observation.entity';
 
 @Injectable()
 export class CatalogService {
@@ -23,6 +24,8 @@ export class CatalogService {
     private readonly stationRepo: Repository<Station>,
     @InjectRepository(StationCurrentPrice)
     private readonly currentPriceRepo: Repository<StationCurrentPrice>,
+    @InjectRepository(StationPriceObservation)
+    private readonly observationRepo: Repository<StationPriceObservation>,
   ) {}
 
   // ──────────────────────────────────────────────
@@ -103,7 +106,8 @@ export class CatalogService {
   // ──────────────────────────────────────────────
 
   async getStations(query: StationQueryDto): Promise<PaginatedResult<Station>> {
-    const qb = this.stationRepo.createQueryBuilder('station')
+    const qb = this.stationRepo
+      .createQueryBuilder('station')
       .leftJoinAndSelect('station.brand', 'brand')
       .leftJoinAndSelect('station.regionCommunity', 'community')
       .leftJoinAndSelect('station.regionProvince', 'province')
@@ -126,11 +130,7 @@ export class CatalogService {
     }
 
     if (query.fuel) {
-      qb.innerJoin(
-        StationCurrentPrice,
-        'cp',
-        'cp.stationId = station.id',
-      )
+      qb.innerJoin(StationCurrentPrice, 'cp', 'cp.stationId = station.id')
         .innerJoin(FuelType, 'ft', 'ft.id = cp.fuelTypeId')
         .andWhere('ft.code = :fuelCode', { fuelCode: query.fuel });
     }
@@ -173,9 +173,7 @@ export class CatalogService {
     });
   }
 
-  async getStationPrices(
-    stationId: number,
-  ): Promise<StationCurrentPrice[]> {
+  async getStationPrices(stationId: number): Promise<StationCurrentPrice[]> {
     return this.currentPriceRepo.find({
       where: { stationId },
       relations: ['fuelType'],
@@ -184,7 +182,8 @@ export class CatalogService {
   }
 
   async getNearbyStations(query: NearbyQueryDto): Promise<Station[]> {
-    const qb = this.stationRepo.createQueryBuilder('station')
+    const qb = this.stationRepo
+      .createQueryBuilder('station')
       .leftJoinAndSelect('station.brand', 'brand')
       .addSelect(
         `(6371 * acos(cos(radians(:lat)) * cos(radians(CAST(station.lat AS double precision))) * cos(radians(CAST(station.lng AS double precision)) - radians(:lng)) + sin(radians(:lat)) * sin(radians(CAST(station.lat AS double precision)))))`,
@@ -210,5 +209,94 @@ export class CatalogService {
     }
 
     return qb.getMany();
+  }
+
+  // ──────────────────────────────────────────────
+  // Historial de estación
+  // ──────────────────────────────────────────────
+
+  async getStationHistory(stationId: number, fuelCode: string, days: number) {
+    const sinceDate = new Date();
+    sinceDate.setDate(sinceDate.getDate() - days);
+
+    const fuelType = await this.fuelTypeRepo.findOne({
+      where: { code: fuelCode },
+    });
+    if (!fuelType) return [];
+
+    const results = await this.observationRepo
+      .createQueryBuilder('obs')
+      .select("TO_CHAR(obs.observedAt, 'YYYY-MM-DD')", 'date')
+      .addSelect('AVG(CAST(obs.price AS double precision))', 'avgPrice')
+      .addSelect('MIN(CAST(obs.price AS double precision))', 'minPrice')
+      .addSelect('MAX(CAST(obs.price AS double precision))', 'maxPrice')
+      .addSelect('COUNT(*)', 'observationCount')
+      .where('obs.stationId = :stationId', { stationId })
+      .andWhere('obs.fuelTypeId = :fuelTypeId', { fuelTypeId: fuelType.id })
+      .andWhere('obs.observedAt >= :since', { since: sinceDate })
+      .groupBy("TO_CHAR(obs.observedAt, 'YYYY-MM-DD')")
+      .orderBy("TO_CHAR(obs.observedAt, 'YYYY-MM-DD')", 'ASC')
+      .getRawMany();
+
+    return results.map((r: Record<string, string>) => ({
+      date: r.date,
+      avgPrice: parseFloat(parseFloat(r.avgPrice).toFixed(4)),
+      minPrice: parseFloat(parseFloat(r.minPrice).toFixed(4)),
+      maxPrice: parseFloat(parseFloat(r.maxPrice).toFixed(4)),
+      observationCount: parseInt(r.observationCount, 10),
+    }));
+  }
+
+  // ──────────────────────────────────────────────
+  // Búsqueda unificada
+  // ──────────────────────────────────────────────
+
+  async search(q: string, limit: number) {
+    const pattern = `%${q}%`;
+
+    const stations = await this.stationRepo
+      .createQueryBuilder('s')
+      .leftJoinAndSelect('s.brand', 'brand')
+      .leftJoinAndSelect('s.regionProvince', 'province')
+      .where('s.isActive = :active', { active: true })
+      .andWhere('(s.name ILIKE :pattern OR s.address ILIKE :pattern)', {
+        pattern,
+      })
+      .orderBy('s.name', 'ASC')
+      .limit(limit)
+      .getMany();
+
+    const regions = await this.regionRepo
+      .createQueryBuilder('r')
+      .where('r.name ILIKE :pattern', { pattern })
+      .andWhere("r.type IN ('COMMUNITY', 'PROVINCE')")
+      .orderBy('r.name', 'ASC')
+      .limit(limit)
+      .getMany();
+
+    const brands = await this.brandRepo
+      .createQueryBuilder('b')
+      .where('b.name ILIKE :pattern', { pattern })
+      .orderBy('b.name', 'ASC')
+      .limit(limit)
+      .getMany();
+
+    return {
+      stations: stations.map((s) => ({
+        name: s.name,
+        slug: s.slug,
+        brand: s.brand?.name ?? null,
+        province: s.regionProvince?.name ?? null,
+      })),
+      regions: regions.map((r) => ({
+        name: r.name,
+        slug: r.slug,
+        type: r.type,
+      })),
+      brands: brands.map((b) => ({
+        name: b.name,
+        slug: b.slug,
+      })),
+    };
   }
 }

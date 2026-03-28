@@ -8,7 +8,12 @@ import { StationCurrentPrice } from './entities/station-current-price.entity';
 import { CatalogService } from './catalog.service';
 import { RegionsController } from './regions.controller';
 import { StationsController } from './stations.controller';
-import { BrandsController, FuelTypesController } from './brands-fuels.controller';
+import {
+  BrandsController,
+  FuelTypesController,
+} from './brands-fuels.controller';
+import { SearchController } from './search.controller';
+import { StationPriceObservation } from '../ingestion/entities/station-price-observation.entity';
 
 @Module({
   imports: [
@@ -18,6 +23,7 @@ import { BrandsController, FuelTypesController } from './brands-fuels.controller
       FuelType,
       Station,
       StationCurrentPrice,
+      StationPriceObservation,
     ]),
   ],
   controllers: [
@@ -25,6 +31,7 @@ import { BrandsController, FuelTypesController } from './brands-fuels.controller
     StationsController,
     BrandsController,
     FuelTypesController,
+    SearchController,
   ],
   providers: [CatalogService],
   exports: [CatalogService, TypeOrmModule],

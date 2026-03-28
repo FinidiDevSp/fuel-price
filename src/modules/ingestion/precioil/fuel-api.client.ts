@@ -61,10 +61,7 @@ export class FuelApiClient {
         this.logger.debug(`GET ${path} (intento ${attempt}/${MAX_RETRIES})`);
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(
-          () => controller.abort(),
-          this.timeout,
-        );
+        const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
         const response = await fetch(url, {
           signal: controller.signal,
@@ -80,8 +77,7 @@ export class FuelApiClient {
         return (await response.json()) as T;
       } catch (error) {
         const isLastAttempt = attempt === MAX_RETRIES;
-        const errMsg =
-          error instanceof Error ? error.message : String(error);
+        const errMsg = error instanceof Error ? error.message : String(error);
 
         if (isLastAttempt) {
           this.logger.error(

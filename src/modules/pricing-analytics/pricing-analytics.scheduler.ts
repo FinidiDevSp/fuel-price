@@ -6,9 +6,7 @@ import { PricingAnalyticsService } from './pricing-analytics.service';
 export class PricingAnalyticsScheduler {
   private readonly logger = new Logger(PricingAnalyticsScheduler.name);
 
-  constructor(
-    private readonly analyticsService: PricingAnalyticsService,
-  ) {}
+  constructor(private readonly analyticsService: PricingAnalyticsService) {}
 
   /**
    * Recalcula agregados diarios cada día a las 23:30 (hora Madrid).

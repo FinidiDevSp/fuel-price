@@ -14,9 +14,7 @@ import { PriceChangeEvent } from '../pricing-analytics/entities/price-change-eve
 import { ChangeDirection } from '../pricing-analytics/interfaces/change-direction.enum';
 import { RegionType } from '../catalog/interfaces/region-type.enum';
 import { FuelApiClient } from './precioil/fuel-api.client';
-import {
-  RawStation,
-} from './precioil/fuel-api.interfaces';
+import { RawStation } from './precioil/fuel-api.interfaces';
 import {
   mapRawStation,
   extractPrices,
@@ -122,8 +120,7 @@ export class IngestionService {
           }
         } catch (error) {
           errors++;
-          const errMsg =
-            error instanceof Error ? error.message : String(error);
+          const errMsg = error instanceof Error ? error.message : String(error);
           this.logger.warn(
             `Error procesando estación ${raw['IDEESS']}: ${errMsg}`,
           );
@@ -262,7 +259,10 @@ export class IngestionService {
       apiCommunities.map((c) => [c.IDCCAA, c.CCAA]),
     );
     const provinceInfo = new Map(
-      apiProvinces.map((p) => [p.IDPovincia, { name: p.Provincia, ccaa: p.IDCCAA }]),
+      apiProvinces.map((p) => [
+        p.IDPovincia,
+        { name: p.Provincia, ccaa: p.IDCCAA },
+      ]),
     );
 
     // Crear/resolver comunidades
@@ -342,7 +342,9 @@ export class IngestionService {
   ): Promise<Map<string, Brand>> {
     const cache = new Map<string, Brand>();
     const brandNames = new Set(
-      rawStations.map((s) => s['Rótulo'].trim().toUpperCase().replace(/\s+/g, ' ')),
+      rawStations.map((s) =>
+        s['Rótulo'].trim().toUpperCase().replace(/\s+/g, ' '),
+      ),
     );
 
     for (const name of brandNames) {
@@ -396,9 +398,7 @@ export class IngestionService {
     });
 
     const brand = brandCache.get(normalized.brandName) ?? null;
-    const community = regionCache.get(
-      `community:${normalized.communityId}`,
-    );
+    const community = regionCache.get(`community:${normalized.communityId}`);
     const province = regionCache.get(`province:${normalized.provinceId}`);
     const municipality = regionCache.get(
       `municipality:${normalized.municipalityId}`,
@@ -464,7 +464,9 @@ export class IngestionService {
 
     // Crear observación (histórico)
     const payloadHash = createHash('sha256')
-      .update(`${station.externalStationId}:${fuelType.code}:${priceStr}:${now.toISOString()}`)
+      .update(
+        `${station.externalStationId}:${fuelType.code}:${priceStr}:${now.toISOString()}`,
+      )
       .digest('hex')
       .substring(0, 64);
 
@@ -482,9 +484,7 @@ export class IngestionService {
     if (current) {
       // Precio existente ha cambiado → actualizar + crear evento
       const previousPrice = current.price;
-      const deltaAbs = (
-        priceData.price - parseFloat(previousPrice)
-      ).toFixed(4);
+      const deltaAbs = (priceData.price - parseFloat(previousPrice)).toFixed(4);
       const deltaPct =
         parseFloat(previousPrice) !== 0
           ? (

@@ -19,7 +19,8 @@ export class IngestionController {
   @Post('run')
   @ApiOperation({
     summary: 'Ejecutar ingesta manualmente',
-    description: 'Lanza un ciclo completo de ingesta de precios desde la API del Ministerio',
+    description:
+      'Lanza un ciclo completo de ingesta de precios desde la API del Ministerio',
   })
   @ApiResponse({ status: 201, description: 'Ingesta completada' })
   @ApiResponse({ status: 500, description: 'Error en la ingesta' })

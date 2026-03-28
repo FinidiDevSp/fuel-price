@@ -14,21 +14,21 @@ export interface RawApiResponse {
 /** Cada estación en la respuesta de la API */
 export interface RawStation {
   'C.P.': string;
-  'Dirección': string;
-  'Horario': string;
-  'Latitud': string;
-  'Localidad': string;
+  Dirección: string;
+  Horario: string;
+  Latitud: string;
+  Localidad: string;
   'Longitud (WGS84)': string;
-  'Margen': string;
-  'Municipio': string;
-  'Provincia': string;
-  'Remisión': string;
-  'Rótulo': string;
+  Margen: string;
+  Municipio: string;
+  Provincia: string;
+  Remisión: string;
+  Rótulo: string;
   'Tipo Venta': string;
-  'IDEESS': string;
-  'IDMunicipio': string;
-  'IDProvincia': string;
-  'IDCCAA': string;
+  IDEESS: string;
+  IDMunicipio: string;
+  IDProvincia: string;
+  IDCCAA: string;
 
   // Campos de precios (string con coma decimal, vacío si no disponible)
   'Precio Biodiesel': string;

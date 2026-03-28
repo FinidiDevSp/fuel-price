@@ -8,7 +8,10 @@ import { StationCurrentPrice } from '../catalog/entities/station-current-price.e
 import { FuelType } from '../catalog/entities/fuel-type.entity';
 import { Region } from '../catalog/entities/region.entity';
 import { RegionType } from '../catalog/interfaces/region-type.enum';
-import { RankingEntry, NationalSummary } from './interfaces/analytics.interfaces';
+import {
+  RankingEntry,
+  NationalSummary,
+} from './interfaces/analytics.interfaces';
 
 @Injectable()
 export class PricingAnalyticsService {
@@ -63,9 +66,7 @@ export class PricingAnalyticsService {
   // Rankings en tiempo real
   // ──────────────────────────────────────────────
 
-  async getRankingByCommunities(
-    fuelCode: string,
-  ): Promise<RankingEntry[]> {
+  async getRankingByCommunities(fuelCode: string): Promise<RankingEntry[]> {
     return this.getRankingByRegionType(fuelCode, RegionType.COMMUNITY);
   }
 
@@ -108,8 +109,10 @@ export class PricingAnalyticsService {
       .orderBy('avgPrice', 'ASC');
 
     if (parentSlug) {
-      qb.innerJoin(Region, 'parent', 'parent.id = region.parentId')
-        .andWhere('parent.slug = :parentSlug', { parentSlug });
+      qb.innerJoin(Region, 'parent', 'parent.id = region.parentId').andWhere(
+        'parent.slug = :parentSlug',
+        { parentSlug },
+      );
     }
 
     const results = await qb.getRawMany();
@@ -196,6 +199,161 @@ export class PricingAnalyticsService {
   }
 
   // ──────────────────────────────────────────────
+  // Datos agregados para la homepage
+  // ──────────────────────────────────────────────
+
+  async getHomePageData() {
+    const [summary, topMovers, communityRanking, mainSeries] =
+      await Promise.all([
+        this.getNationalSummary(),
+        this.getTopMovers('G95E5', 5),
+        this.getRankingByCommunities('G95E5'),
+        this.getTimeSeries('G95E5', undefined, 30),
+      ]);
+
+    return { summary, topMovers, communityRanking, mainSeries };
+  }
+
+  // ──────────────────────────────────────────────
+  // Ranking de estaciones individuales
+  // ──────────────────────────────────────────────
+
+  async getStationRankings(params: {
+    fuelCode: string;
+    communitySlug?: string;
+    provinceSlug?: string;
+    order: 'asc' | 'desc';
+    limit: number;
+  }) {
+    const qb = this.currentPriceRepo
+      .createQueryBuilder('cp')
+      .innerJoin('cp.fuelType', 'ft')
+      .innerJoin('cp.station', 'station')
+      .leftJoin('station.brand', 'brand')
+      .leftJoin('station.regionProvince', 'province')
+      .leftJoin('station.regionCommunity', 'community')
+      .select('station.name', 'stationName')
+      .addSelect('station.slug', 'stationSlug')
+      .addSelect('brand.name', 'brandName')
+      .addSelect('province.name', 'provinceName')
+      .addSelect('community.name', 'communityName')
+      .addSelect('CAST(cp.price AS double precision)', 'price')
+      .addSelect('cp.observedAt', 'lastUpdated')
+      .where('ft.code = :fuelCode', { fuelCode: params.fuelCode })
+      .andWhere('station.isActive = :active', { active: true })
+      .orderBy(
+        'CAST(cp.price AS double precision)',
+        params.order === 'asc' ? 'ASC' : 'DESC',
+      )
+      .limit(params.limit);
+
+    if (params.communitySlug) {
+      qb.andWhere('community.slug = :communitySlug', {
+        communitySlug: params.communitySlug,
+      });
+    }
+
+    if (params.provinceSlug) {
+      qb.andWhere('province.slug = :provinceSlug', {
+        provinceSlug: params.provinceSlug,
+      });
+    }
+
+    const results = await qb.getRawMany();
+
+    return results.map((r: Record<string, string>) => ({
+      stationName: r.stationName,
+      stationSlug: r.stationSlug,
+      brandName: r.brandName ?? null,
+      provinceName: r.provinceName ?? '',
+      communityName: r.communityName ?? '',
+      price: parseFloat(parseFloat(r.price).toFixed(4)),
+      lastUpdated: r.lastUpdated,
+    }));
+  }
+
+  // ──────────────────────────────────────────────
+  // Datos agregados para una región
+  // ──────────────────────────────────────────────
+
+  async getRegionStats(regionSlug: string, fuelCode: string) {
+    const region = await this.regionRepo.findOne({
+      where: { slug: regionSlug },
+      relations: ['parent', 'children'],
+    });
+
+    if (!region) return null;
+
+    // Resumen del combustible para esta región
+    const regionField = this.getRegionField(region.type);
+
+    let regionSummary: Array<{
+      fuelCode: string;
+      fuelName: string;
+      avgPrice: number;
+      minPrice: number;
+      maxPrice: number;
+      stationCount: number;
+    }> = [];
+
+    if (regionField) {
+      const summaryResults = await this.currentPriceRepo
+        .createQueryBuilder('cp')
+        .innerJoin('cp.fuelType', 'ft')
+        .innerJoin('cp.station', 'station')
+        .select('ft.code', 'fuelCode')
+        .addSelect('ft.name', 'fuelName')
+        .addSelect('AVG(CAST(cp.price AS double precision))', 'avgPrice')
+        .addSelect('MIN(CAST(cp.price AS double precision))', 'minPrice')
+        .addSelect('MAX(CAST(cp.price AS double precision))', 'maxPrice')
+        .addSelect('COUNT(cp.id)', 'stationCount')
+        .where('ft.isActive = :active', { active: true })
+        .andWhere(`station.${regionField} = :regionId`, {
+          regionId: region.id,
+        })
+        .andWhere('station.isActive = :sActive', { sActive: true })
+        .groupBy('ft.code')
+        .addGroupBy('ft.name')
+        .getRawMany();
+
+      regionSummary = summaryResults.map((r: Record<string, string>) => ({
+        fuelCode: r.fuelCode,
+        fuelName: r.fuelName,
+        avgPrice: parseFloat(parseFloat(r.avgPrice).toFixed(4)),
+        minPrice: parseFloat(parseFloat(r.minPrice).toFixed(4)),
+        maxPrice: parseFloat(parseFloat(r.maxPrice).toFixed(4)),
+        stationCount: parseInt(r.stationCount, 10),
+      }));
+    }
+
+    // Media nacional para comparar
+    const nationalSummary = await this.getNationalSummary();
+    const nationalFuel = nationalSummary.find((s) => s.fuelCode === fuelCode);
+
+    // Ranking de hijos (provincias si es comunidad)
+    let childRanking: RankingEntry[] = [];
+    if (region.type === RegionType.COMMUNITY) {
+      childRanking = await this.getRankingByProvinces(fuelCode, regionSlug);
+    }
+
+    // Serie temporal
+    const series = await this.getTimeSeries(fuelCode, regionSlug, 30);
+
+    return {
+      region: {
+        id: region.id,
+        name: region.name,
+        slug: region.slug,
+        type: region.type,
+      },
+      summary: regionSummary,
+      nationalAvg: nationalFuel?.avgPrice ?? null,
+      childRanking,
+      series,
+    };
+  }
+
+  // ──────────────────────────────────────────────
   // Cálculo de agregados diarios (batch)
   // ──────────────────────────────────────────────
 
@@ -262,7 +420,11 @@ export class PricingAnalyticsService {
 
     const result = await qb.getRawOne();
 
-    if (!result || !result.avgPrice || parseInt(result.stationCount, 10) === 0) {
+    if (
+      !result ||
+      !result.avgPrice ||
+      parseInt(result.stationCount, 10) === 0
+    ) {
       return null;
     }
 
@@ -428,9 +590,7 @@ export class PricingAnalyticsService {
     }
   }
 
-  private getRegionField(
-    type: RegionType,
-  ): string | null {
+  private getRegionField(type: RegionType): string | null {
     switch (type) {
       case RegionType.COMMUNITY:
         return 'regionCommunityId';

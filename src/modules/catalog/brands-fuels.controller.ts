@@ -41,7 +41,10 @@ export class FuelTypesController {
 
   @Get(':code')
   @ApiOperation({ summary: 'Obtener un tipo de combustible por código' })
-  @ApiParam({ name: 'code', description: 'Código del combustible (G95E5, GOA, etc.)' })
+  @ApiParam({
+    name: 'code',
+    description: 'Código del combustible (G95E5, GOA, etc.)',
+  })
   @ApiResponse({ status: 200, description: 'Detalle del combustible' })
   async getFuelType(@Param('code') code: string) {
     const data = await this.catalogService.getFuelTypeByCode(code);

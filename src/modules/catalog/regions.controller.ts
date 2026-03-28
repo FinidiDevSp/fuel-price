@@ -16,7 +16,9 @@ export class RegionsController {
   }
 
   @Get('provinces')
-  @ApiOperation({ summary: 'Listar provincias (opcionalmente filtrar por comunidad)' })
+  @ApiOperation({
+    summary: 'Listar provincias (opcionalmente filtrar por comunidad)',
+  })
   @ApiResponse({ status: 200, description: 'Lista de provincias' })
   async getProvinces(@Query('community') community?: string) {
     const data = await this.catalogService.getProvinces(community);

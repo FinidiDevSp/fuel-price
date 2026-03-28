@@ -12,6 +12,7 @@ import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import redisConfig from './config/redis.config';
 import ingestionConfig from './config/ingestion.config';
+import { RedisCacheModule } from './common/cache/redis-cache.module';
 
 @Module({
   imports: [
@@ -42,6 +43,9 @@ import ingestionConfig from './config/ingestion.config';
 
     // Tareas programadas (para ingesta periódica)
     ScheduleModule.forRoot(),
+
+    // Cache Redis
+    RedisCacheModule,
 
     // Módulos de la aplicación
     HealthModule,

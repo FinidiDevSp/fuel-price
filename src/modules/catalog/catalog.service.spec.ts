@@ -6,6 +6,7 @@ import { Brand } from './entities/brand.entity';
 import { FuelType } from './entities/fuel-type.entity';
 import { Station } from './entities/station.entity';
 import { StationCurrentPrice } from './entities/station-current-price.entity';
+import { StationPriceObservation } from '../ingestion/entities/station-price-observation.entity';
 import { RegionType } from './interfaces/region-type.enum';
 
 const mockRegionRepo = {
@@ -32,6 +33,10 @@ const mockCurrentPriceRepo = {
   find: jest.fn(),
 };
 
+const mockObservationRepo = {
+  createQueryBuilder: jest.fn(),
+};
+
 describe('CatalogService', () => {
   let service: CatalogService;
 
@@ -46,6 +51,10 @@ describe('CatalogService', () => {
         {
           provide: getRepositoryToken(StationCurrentPrice),
           useValue: mockCurrentPriceRepo,
+        },
+        {
+          provide: getRepositoryToken(StationPriceObservation),
+          useValue: mockObservationRepo,
         },
       ],
     }).compile();
