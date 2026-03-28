@@ -11,13 +11,14 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import redisConfig from './config/redis.config';
+import ingestionConfig from './config/ingestion.config';
 
 @Module({
   imports: [
     // Configuración centralizada con validación
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, redisConfig],
+      load: [appConfig, databaseConfig, redisConfig, ingestionConfig],
       envFilePath: ['.env.local', '.env'],
     }),
 
