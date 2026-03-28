@@ -19,7 +19,9 @@
   "files.exclude": {
     "dist": true,
     "coverage": true,
-    "node_modules": true
+    "node_modules": true,
+    "web/.next": true,
+    "web/node_modules": true
   },
 
   // Asociaciones de archivos

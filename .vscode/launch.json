@@ -58,13 +58,21 @@
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true
+    },
+    {
+      // Frontend Next.js en puerto 3001
+      "name": "Next.js: Dev",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev -- -p 3001",
+      "cwd": "${workspaceFolder}/web"
     }
   ],
   "compounds": [
     {
-      // Arranca app + infra Docker al mismo tiempo
+      // Arranca backend NestJS + frontend Next.js + Docker
       "name": "Full Stack: App + Docker",
-      "configurations": ["NestJS: Debug (watch)"],
+      "configurations": ["NestJS: Debug (watch)", "Next.js: Dev"],
       "preLaunchTask": "docker:up:wait"
     }
   ]
