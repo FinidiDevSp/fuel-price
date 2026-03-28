@@ -34,3 +34,9 @@ redis_data/
 # Temporal
 tmp/
 temp/
+
+# Next.js (frontend)
+web/.next/
+web/node_modules/
+web/.env.local
+tsconfig.build.tsbuildinfo
