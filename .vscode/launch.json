@@ -5,28 +5,20 @@
       // Depurar la aplicación NestJS con hot-reload
       // Usa F5 para arrancar y depurar con breakpoints
       "name": "NestJS: Debug (watch)",
-      "type": "node",
+      "type": "node-terminal",
       "request": "launch",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start:debug"],
-      "console": "integratedTerminal",
-      "restart": true,
-      "envFile": "${workspaceFolder}/.env",
-      "skipFiles": ["<node_internals>/**"],
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
-      "sourceMaps": true
+      "command": "npm run start:debug",
+      "preLaunchTask": "docker:up:wait",
+      "envFile": "${workspaceFolder}/.env"
     },
     {
       // Arrancar sin watch (más rápido, sin hot-reload)
       "name": "NestJS: Debug (sin watch)",
-      "type": "node",
+      "type": "node-terminal",
       "request": "launch",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "start:dev"],
-      "console": "integratedTerminal",
-      "envFile": "${workspaceFolder}/.env",
-      "skipFiles": ["<node_internals>/**"],
-      "sourceMaps": true
+      "command": "npm run start:dev",
+      "preLaunchTask": "docker:up:wait",
+      "envFile": "${workspaceFolder}/.env"
     },
     {
       // Depurar tests unitarios con Jest
@@ -73,7 +65,7 @@
       // Arranca app + infra Docker al mismo tiempo
       "name": "Full Stack: App + Docker",
       "configurations": ["NestJS: Debug (watch)"],
-      "preLaunchTask": "docker:up"
+      "preLaunchTask": "docker:up:wait"
     }
   ]
 }

@@ -1,10 +1,10 @@
-# ──────────────────────────────────────────────
-# CodeQL - Análisis de seguridad
-# ──────────────────────────────────────────────
+# ----------------------------------------------
+# CodeQL - Analisis de seguridad
+# ----------------------------------------------
 # Escanea el código TypeScript/JavaScript en busca
 # de vulnerabilidades conocidas (inyección, XSS, etc.).
 # Se ejecuta semanalmente y en cada push a main.
-# ──────────────────────────────────────────────
+# ----------------------------------------------
 
 name: CodeQL
 

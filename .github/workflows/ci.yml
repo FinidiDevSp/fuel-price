@@ -1,10 +1,10 @@
-# ──────────────────────────────────────────────
+# ----------------------------------------------
 # CI Pipeline - Fuel Price
-# ──────────────────────────────────────────────
+# ----------------------------------------------
 # Se ejecuta en cada push a main.
 # Garantiza que el código compila, pasa lint,
 # verificación de tipos y tests antes de llegar.
-# ──────────────────────────────────────────────
+# ----------------------------------------------
 
 name: CI
 
@@ -26,33 +26,33 @@ jobs:
         node-version: [20]
 
     steps:
-      # ── Checkout del código ──
+      # Checkout del código
       - name: Checkout
         uses: actions/checkout@v6
 
-      # ── Setup de Node.js con caché de npm ──
+      # Setup de Node.js con caché de npm
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
 
-      # ── Instalar dependencias ──
+      # Instalar dependencias
       - name: Instalar dependencias
         run: npm ci
 
-      # ── Lint ──
+      # Lint
       - name: Ejecutar lint
         run: npm run lint
 
-      # ── Verificación de tipos ──
+      # Verificación de tipos
       - name: Verificar tipos (typecheck)
         run: npm run typecheck
 
-      # ── Tests unitarios ──
+      # Tests unitarios
       - name: Ejecutar tests
         run: npm test -- --passWithNoTests --coverage
 
-      # ── Build ──
+      # Build
       - name: Compilar proyecto
         run: npm run build

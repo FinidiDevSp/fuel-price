@@ -1,23 +1,31 @@
 import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
+import tsEslintPlugin from '@typescript-eslint/eslint-plugin';
+import tsEslintParser from '@typescript-eslint/parser';
 import eslintPluginPrettier from 'eslint-plugin-prettier/recommended';
 
-export default tseslint.config(
-  eslint.configs.recommended,
-  ...tseslint.configs.recommended,
-  eslintPluginPrettier,
+export default [
   {
+    ignores: ['dist/**', 'node_modules/**', 'coverage/**'],
+  },
+  eslint.configs.recommended,
+  {
+    files: ['**/*.ts'],
     languageOptions: {
+      parser: tsEslintParser,
+      globals: {
+        process: 'readonly',
+      },
       parserOptions: {
         project: './tsconfig.json',
         tsconfigRootDir: import.meta.dirname,
         sourceType: 'module',
       },
     },
+    plugins: {
+      '@typescript-eslint': tsEslintPlugin,
+    },
     rules: {
-      '@typescript-eslint/interface-name-prefix': 'off',
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      ...tsEslintPlugin.configs.recommended.rules,
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
         'warn',
@@ -26,6 +34,15 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**', 'coverage/**'],
+    files: ['**/*.spec.ts', 'test/**/*.ts'],
+    languageOptions: {
+      globals: {
+        beforeEach: 'readonly',
+        describe: 'readonly',
+        expect: 'readonly',
+        it: 'readonly',
+      },
+    },
   },
-);
+  eslintPluginPrettier,
+];

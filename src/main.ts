@@ -40,9 +40,7 @@ async function bootstrap() {
   // Swagger / OpenAPI
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Fuel Price API')
-    .setDescription(
-      'API de inteligencia de precios de combustibles en España',
-    )
+    .setDescription('API de inteligencia de precios de combustibles en España')
     .setVersion('0.1.0')
     .build();
 

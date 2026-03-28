@@ -3,6 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HealthModule } from './modules/health/health.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
+import { IngestionModule } from './modules/ingestion/ingestion.module';
+import { PricingAnalyticsModule } from './modules/pricing-analytics/pricing-analytics.module';
+import { ContentIntelligenceModule } from './modules/content-intelligence/content-intelligence.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import appConfig from './config/app.config';
 import databaseConfig from './config/database.config';
 import redisConfig from './config/redis.config';
@@ -29,6 +34,8 @@ import redisConfig from './config/redis.config';
         autoLoadEntities: true,
         synchronize: config.get<string>('NODE_ENV') !== 'production',
         logging: config.get<string>('NODE_ENV') === 'development',
+        migrations: ['dist/database/migrations/*{.ts,.js}'],
+        migrationsRun: config.get<string>('NODE_ENV') === 'production',
       }),
     }),
 
@@ -37,6 +44,11 @@ import redisConfig from './config/redis.config';
 
     // Módulos de la aplicación
     HealthModule,
+    CatalogModule,
+    IngestionModule,
+    PricingAnalyticsModule,
+    ContentIntelligenceModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

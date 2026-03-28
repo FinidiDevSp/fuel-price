@@ -9,6 +9,13 @@
       "detail": "Levanta PostgreSQL y Redis con Docker Compose"
     },
     {
+      "label": "docker:up:wait",
+      "type": "shell",
+      "command": "docker compose up -d; $services = @('fuel-price-postgres', 'fuel-price-redis'); $maxAttempts = 30; foreach ($service in $services) { $healthy = $false; for ($attempt = 0; $attempt -lt $maxAttempts; $attempt++) { $status = docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' $service 2>$null; if ($status -eq 'healthy' -or $status -eq 'running') { $healthy = $true; break; }; Start-Sleep -Seconds 2; }; if (-not $healthy) { Write-Error \"El servicio $service no está listo para depuración\"; exit 1; } }",
+      "problemMatcher": [],
+      "detail": "Levanta Docker Compose y espera a que PostgreSQL y Redis estén listos"
+    },
+    {
       "label": "docker:down",
       "type": "shell",
       "command": "docker compose down",
