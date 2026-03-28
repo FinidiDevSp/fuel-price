@@ -50,7 +50,7 @@ export class StationPriceObservation {
   @Column({ type: 'int', nullable: true })
   ingestionRunId!: number | null;
 
-  @Column({ length: 64, nullable: true })
+  @Column({ type: 'varchar', length: 64, nullable: true })
   rawPayloadHash!: string | null;
 
   @Column({ type: 'jsonb', nullable: true })

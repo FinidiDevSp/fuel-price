@@ -55,11 +55,11 @@ export class Station {
   @JoinColumn({ name: 'regionMunicipalityId' })
   regionMunicipality!: Region | null;
 
-  @Column({ length: 500, nullable: true })
+  @Column({ type: 'varchar', length: 500, nullable: true })
   address!: string | null;
 
   @Index()
-  @Column({ length: 10, nullable: true })
+  @Column({ type: 'varchar', length: 10, nullable: true })
   postalCode!: string | null;
 
   @Column({ type: 'decimal', precision: 10, scale: 7 })
@@ -68,7 +68,7 @@ export class Station {
   @Column({ type: 'decimal', precision: 10, scale: 7 })
   lng!: string;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   openingHours!: string | null;
 
   @Column({ type: 'jsonb', nullable: true })

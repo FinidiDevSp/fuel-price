@@ -302,7 +302,7 @@ export class IngestionService {
             type: RegionType.PROVINCE,
             name,
             code: `PROV-${provId}`,
-            slug: slugify(name),
+            slug: slugify(`${name}-prov-${provId}`),
             parentId: parent?.id ?? spain.id,
           }),
         );
@@ -350,6 +350,11 @@ export class IngestionService {
       let brand = await this.brandRepo.findOne({
         where: { normalizedName: name },
       });
+      if (!brand) {
+        brand = await this.brandRepo.findOne({
+          where: { slug },
+        });
+      }
       if (!brand) {
         brand = await this.brandRepo.save(
           this.brandRepo.create({

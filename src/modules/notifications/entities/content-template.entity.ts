@@ -25,7 +25,7 @@ export class ContentTemplate {
   @Column({ length: 10, default: 'es' })
   language!: string;
 
-  @Column({ length: 500, nullable: true })
+  @Column({ type: 'varchar', length: 500, nullable: true })
   subject!: string | null;
 
   @Column({ type: 'text' })

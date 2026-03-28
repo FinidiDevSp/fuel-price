@@ -2,6 +2,8 @@
   // Formateador por defecto: Prettier
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
+  "prettier.prettierPath": "./node_modules/prettier",
+  "prettier.requireConfig": true,
 
   // TypeScript
   "typescript.preferences.importModuleSpecifier": "non-relative",
